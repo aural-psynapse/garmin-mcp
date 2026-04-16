@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Ruff
+        run: ruff check src tests
+      - name: Pytest
+        run: pytest tests/ --cov=src --cov-report=term-missing
+      - name: Docker Compose config
+        run: docker compose config
+        env:
+          TUNNEL_TOKEN: dummy

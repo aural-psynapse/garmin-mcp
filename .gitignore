@@ -1,0 +1,28 @@
+# Local secrets — never commit
+config.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Per-user runtime data (default paths; adjust if you mirror these under the repo)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+data/tokens/
+data/db/
+
+# Backup exports — paths are configurable per user. If backup_path points inside this
+# repo, add a matching pattern here or move backups to /data/... (Docker volume).
+data/backups/
+**/backups/*.sqlite
+**/backups/*.db

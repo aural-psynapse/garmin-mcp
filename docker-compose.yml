@@ -1,0 +1,30 @@
+# Last verified: 2026-04-16 — cloudflared image tag pinned
+services:
+  garmin-mcp:
+    build: .
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - garmin-data:/data
+    environment:
+      GARMIN_MCP_CONFIG: /app/config.yaml
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:2025.2.1
+    # Token-based tunnel; forwards to MCP HTTP/SSE on garmin-mcp:8765 (configure route in Cloudflare dashboard)
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
+    depends_on:
+      - garmin-mcp
+    restart: unless-stopped
+
+volumes:
+  garmin-data:

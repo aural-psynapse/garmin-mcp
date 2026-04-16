@@ -1,0 +1,70 @@
+# Copy to config.yaml and fill in secrets. Never commit config.yaml.
+# Garmin stores activity timestamps in UTC; each user has a timezone for display.
+
+port: 8765
+log_level: info
+cloudflare_tunnel_token: "" # Injected via docker-compose from env; optional for local dev
+
+last_n_days: 30
+max_date_range_days: 90
+sync_interval_minutes: 30
+backup_schedule_time: "02:00"
+
+tools:
+  get_recent_activities: true
+  get_activity_detail: true
+  get_sleep: true
+  get_training_status: true
+  get_training_readiness: true
+  get_historical_summary: true
+  get_my_context: true
+  suggest_next_workout: true
+  get_goal_progress: true
+  create_goal: true
+  complete_goal: true
+  list_goals: true
+  archive_goal: true
+  log_reasoning: true
+  log_workout_feeling: true
+  dismiss_flag: true
+
+users:
+  - name: alice
+    garmin_email: alice@example.com
+    garmin_password: "changeme"
+    api_key: "alice-dev-api-key-change-me-32chars"
+    token_cache_path: /data/tokens/alice.token
+    encryption_secret: "alice-encryption-secret-min-8-chars"
+    db_path: /data/db/alice.sqlite
+    backup_path: /data/backups/alice/
+    backup_retention: 7
+    timezone: Europe/Prague
+    rate_limit: 30
+    initial_sync_days: 365
+    reasoning_retention_days: 90
+    goals: []
+    flag_rules:
+      poor_sleep_streak_days: 3
+      load_week_over_week_pct: 10.0
+      goal_idle_days_before_deadline: 7
+      pr_detection_enabled: true
+
+  - name: bob
+    garmin_email: bob@example.com
+    garmin_password: "changeme"
+    api_key: "bob-dev-api-key-change-me-32chars"
+    token_cache_path: /data/tokens/bob.token
+    encryption_secret: "bob-encryption-secret-min-8-chars"
+    db_path: /data/db/bob.sqlite
+    backup_path: /data/backups/bob/
+    backup_retention: 7
+    timezone: America/New_York
+    rate_limit: 30
+    initial_sync_days: 365
+    reasoning_retention_days: 90
+    goals: []
+    flag_rules:
+      poor_sleep_streak_days: 3
+      load_week_over_week_pct: 10.0
+      goal_idle_days_before_deadline: 7
+      pr_detection_enabled: true
