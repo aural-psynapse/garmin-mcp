@@ -13,7 +13,8 @@ def test_wal_first_pragma(tmp_path) -> None:
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("CREATE TABLE x(a int)")
     conn.close()
-    jm = sqlite3.connect(str(p)).execute("PRAGMA journal_mode").fetchone()[0]
+    with sqlite3.connect(str(p)) as c2:
+        jm = c2.execute("PRAGMA journal_mode").fetchone()[0]
     assert jm.upper() == "WAL"
 
 

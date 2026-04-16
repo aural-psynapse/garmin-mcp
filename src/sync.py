@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import date, timedelta, timezone
+from datetime import UTC, date, timedelta
 from typing import Any
 
 from dateutil import parser as dateparser
@@ -32,11 +32,13 @@ def _parse_activity(a: dict[str, Any]) -> dict[str, Any]:
     st = None
     if start:
         try:
-            st = dateparser.parse(str(start)).astimezone(timezone.utc).isoformat()
+            st = dateparser.parse(str(start)).astimezone(UTC).isoformat()
         except Exception:
             st = str(start)
     return {
-        "type": a.get("activityType", {}).get("typeKey") if isinstance(a.get("activityType"), dict) else a.get("activityType"),
+        "type": a.get("activityType", {}).get("typeKey")
+        if isinstance(a.get("activityType"), dict)
+        else a.get("activityType"),
         "start_time_utc": st,
         "distance_m": float(dist) / 1000.0 if dist else None,
         "duration_s": float(dur) if dur else None,
@@ -197,10 +199,7 @@ def run_sync(
                     sd,
                     float(sd.get("dailySleepDTO", {}).get("sleepTimeSeconds") or 0) or None,
                     float(sd["dailySleepDTO"]["sleepScores"]["overall"]["value"])
-                    if sd.get("dailySleepDTO", {})
-                    .get("sleepScores", {})
-                    .get("overall", {})
-                    .get("value")
+                    if sd.get("dailySleepDTO", {}).get("sleepScores", {}).get("overall", {}).get("value")
                     else None,
                     sd.get("dailySleepDTO", {}).get("sleepLevels"),
                 )

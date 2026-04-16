@@ -8,6 +8,7 @@ from typing import Any
 import database as db
 from metrics import DB_HITS, TOOL_CALLS
 from runtime import get_app_state
+
 from ._common import current_user, tool_enabled
 
 
@@ -19,11 +20,13 @@ def register(mcp) -> None:
         u = current_user()
         TOOL_CALLS.labels(user=u.name, tool="get_training_status").inc()
         conn = db.connect(u.db_path)
-        db.init_schema(conn)
-        DB_HITS.labels(user=u.name).inc()
-        last = db.get_last_sync_at(conn, u.name)
-        row = db.get_latest_training_status(conn, u.name)
-        conn.close()
+        try:
+            db.init_schema(conn)
+            DB_HITS.labels(user=u.name).inc()
+            last = db.get_last_sync_at(conn, u.name)
+            row = db.get_latest_training_status(conn, u.name)
+        finally:
+            conn.close()
         if not row:
             return {"status": None, "data_source": "cache", "last_sync_at": last}
         return {
@@ -39,11 +42,13 @@ def register(mcp) -> None:
         u = current_user()
         TOOL_CALLS.labels(user=u.name, tool="get_training_readiness").inc()
         conn = db.connect(u.db_path)
-        db.init_schema(conn)
-        DB_HITS.labels(user=u.name).inc()
-        last = db.get_last_sync_at(conn, u.name)
-        row = db.get_latest_training_readiness(conn, u.name)
-        conn.close()
+        try:
+            db.init_schema(conn)
+            DB_HITS.labels(user=u.name).inc()
+            last = db.get_last_sync_at(conn, u.name)
+            row = db.get_latest_training_readiness(conn, u.name)
+        finally:
+            conn.close()
         if not row:
             return {"readiness": None, "data_source": "cache", "last_sync_at": last}
         return {
@@ -61,17 +66,21 @@ def register(mcp) -> None:
         get_app_state()
         TOOL_CALLS.labels(user=u.name, tool="suggest_next_workout").inc()
         conn = db.connect(u.db_path)
-        db.init_schema(conn)
-        DB_HITS.labels(user=u.name).inc()
-        readiness_row = db.get_latest_training_readiness(conn, u.name)
-        status_row = db.get_latest_training_status(conn, u.name)
-        goals = db.list_active_goals(conn, u.name)
-        acts = db.fetch_recent_activities(conn, u.name, 3, False)
-        conn.close()
+        try:
+            db.init_schema(conn)
+            DB_HITS.labels(user=u.name).inc()
+            readiness_row = db.get_latest_training_readiness(conn, u.name)
+            status_row = db.get_latest_training_status(conn, u.name)
+            goals = db.list_active_goals(conn, u.name)
+            acts = db.fetch_recent_activities(conn, u.name, 3, False)
+        finally:
+            conn.close()
 
         dq: list[str] = []
         data_quality: str = "full"
-        readiness_score = float(readiness_row["score"]) if readiness_row and readiness_row["score"] is not None else None
+        readiness_score = (
+            float(readiness_row["score"]) if readiness_row and readiness_row["score"] is not None else None
+        )
         if readiness_score is None:
             readiness_score = 65.0
             dq.append("Assumed moderate readiness (missing in DB).")

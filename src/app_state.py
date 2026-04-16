@@ -12,6 +12,6 @@ if TYPE_CHECKING:
 
 @dataclass
 class AppState:
-    config: "AppConfig"
-    auth_by_user: dict[str, "GarminAuthManager"] = field(default_factory=dict)
+    config: AppConfig
+    auth_by_user: dict[str, GarminAuthManager] = field(default_factory=dict)
     shutting_down: bool = False

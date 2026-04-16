@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import database as db
 from metrics import SYNC_CALLS, TOOL_CALLS
 from runtime import get_app_state
 from sync import run_sync
+
 from ._common import current_user, tool_enabled
 
 
@@ -38,11 +39,13 @@ def register(mcp) -> None:
         tr = db.get_latest_training_readiness(conn, u.name)
         flags = db.list_unacknowledged_flags(conn, u.name)
         reason_rows = db.recent_reasonings(conn, u.name, 7, 50)
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(days=7)).isoformat()
         reason_rows = [r for r in reason_rows if r["created_at"] >= cutoff]
         conn.close()
 
-        goals_summary = [{"id": g["id"], "title": g["title"], "metric": g["metric"], "target": g["target_value"]} for g in goals]
+        goals_summary = [
+            {"id": g["id"], "title": g["title"], "metric": g["metric"], "target": g["target_value"]} for g in goals
+        ]
         reasonings = []
         for r in reason_rows:
             reasonings.append(
@@ -61,8 +64,7 @@ def register(mcp) -> None:
             "training_readiness_score": float(tr["score"]) if tr and tr["score"] is not None else None,
             "last_sync_at": last,
             "unacknowledged_flags": [
-                {"id": f["id"], "type": f["flag_type"], "payload": json.loads(f["payload_json"] or "{}")}
-                for f in flags
+                {"id": f["id"], "type": f["flag_type"], "payload": json.loads(f["payload_json"] or "{}")} for f in flags
             ],
             "data_source": "cache",
         }

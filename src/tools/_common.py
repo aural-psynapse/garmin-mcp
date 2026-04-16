@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-
 from fastmcp.server.dependencies import get_http_request
 
 from config import UserConfig

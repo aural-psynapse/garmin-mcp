@@ -20,6 +20,7 @@ Claude → (Tunnel) → `garmin-mcp` → Starlette middleware (`X-API-Key`, rate
 - `src/backup_service.py` — Per-user SQLite file backup.
 - `src/tools/*.py` — MCP tools and registrations.
 - `tests/` — pytest unit and e2e tests.
+- `pyproject.toml` — Ruff (lint/format) and pytest defaults; optional hooks in `.pre-commit-config.yaml`.
 - `docker-compose.yml` — `garmin-mcp` + `cloudflared`.
 - `Makefile` — Operational shortcuts.
 

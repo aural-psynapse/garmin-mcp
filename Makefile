@@ -1,6 +1,6 @@
-# Garmin MCP — convenience targets (last verified: 2026-04-16)
+# Garmin MCP — convenience targets (last verified: 2026-04-17)
 
-.PHONY: up down logs test lint sync backup shell validate
+.PHONY: up down logs test lint format sync backup shell validate
 
 up:
 	docker compose up -d
@@ -15,7 +15,10 @@ test:
 	@if [ -f .venv/bin/python ]; then .venv/bin/python -m pytest tests/ -v --cov=src --cov-report=term-missing; else python3 -m pytest tests/ -v --cov=src; fi
 
 lint:
-	@if [ -f .venv/bin/ruff ]; then .venv/bin/ruff check src tests; else ruff check src tests; fi
+	@if [ -f .venv/bin/ruff ]; then .venv/bin/ruff check src tests && .venv/bin/ruff format --check src tests; else ruff check src tests && ruff format --check src tests; fi
+
+format:
+	@if [ -f .venv/bin/ruff ]; then .venv/bin/ruff format src tests; else ruff format src tests; fi
 
 sync:
 	.venv/bin/python scripts/sync_all.py

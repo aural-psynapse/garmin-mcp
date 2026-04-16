@@ -7,7 +7,7 @@ import logging
 import shutil
 import sqlite3
 import threading
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -156,7 +156,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 class Database:
@@ -298,11 +298,15 @@ def upsert_sleep_row(
 ) -> None:
     now = utc_now_iso()
     conn.execute(
-        """INSERT INTO sleep (sleep_id, user_id, calendar_date, raw_json, duration_s, score, stages_json, version, updated_at)
-           VALUES (?,?,?,?,?,?,?,?,?)
-           ON CONFLICT(sleep_id, user_id) DO UPDATE SET
-           raw_json=excluded.raw_json, duration_s=excluded.duration_s, score=excluded.score,
-           stages_json=excluded.stages_json, status='active', archived_at=NULL, version=sleep.version+1, updated_at=excluded.updated_at""",
+        (
+            "INSERT INTO sleep (sleep_id, user_id, calendar_date, raw_json, duration_s, score, "
+            "stages_json, version, updated_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(sleep_id, user_id) DO UPDATE SET "
+            "raw_json=excluded.raw_json, duration_s=excluded.duration_s, score=excluded.score, "
+            "stages_json=excluded.stages_json, status='active', archived_at=NULL, "
+            "version=sleep.version+1, updated_at=excluded.updated_at"
+        ),
         (
             sleep_id,
             user_id,
@@ -390,8 +394,11 @@ def insert_reasoning(
     tags: list[str] | None,
 ) -> int:
     cur = conn.execute(
-        """INSERT INTO reasonings (user_id, tool_name, params_json, response_json, summary, goal_id, tags_json, created_at)
-           VALUES (?,?,?,?,?,?,?,?)""",
+        (
+            "INSERT INTO reasonings (user_id, tool_name, params_json, response_json, summary, "
+            "goal_id, tags_json, created_at) "
+            "VALUES (?,?,?,?,?,?,?,?)"
+        ),
         (
             user_id,
             tool_name,
@@ -407,9 +414,7 @@ def insert_reasoning(
     return int(cur.lastrowid)
 
 
-def recent_reasonings(
-    conn: sqlite3.Connection, user_id: str, days: int, limit: int = 50
-) -> list[sqlite3.Row]:
+def recent_reasonings(conn: sqlite3.Connection, user_id: str, days: int, limit: int = 50) -> list[sqlite3.Row]:
     return list(
         conn.execute(
             """SELECT * FROM reasonings WHERE user_id=? AND archived=0
@@ -497,7 +502,7 @@ def insert_workout_feeling(
 
 def prune_old_untagged_reasonings(conn: sqlite3.Connection, user_id: str, retention_days: int) -> int:
     # Simplified: delete reasonings with no goal_id older than retention
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=retention_days)).isoformat()
+    cutoff = (datetime.now(UTC) - timedelta(days=retention_days)).isoformat()
     cur = conn.execute(
         "DELETE FROM reasonings WHERE user_id=? AND goal_id IS NULL AND created_at < ?",
         (user_id, cutoff),
@@ -508,7 +513,7 @@ def prune_old_untagged_reasonings(conn: sqlite3.Connection, user_id: str, retent
 
 def backup_db_file(db_path: str, backup_dir: Path) -> Path:
     backup_dir.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    ts = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     dest = backup_dir / f"backup_{ts}.sqlite"
     shutil.copy2(db_path, dest)
     return dest

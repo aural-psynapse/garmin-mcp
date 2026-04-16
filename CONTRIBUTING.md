@@ -16,7 +16,9 @@ cd src && PYTHONPATH=. uvicorn main:app --host 127.0.0.1 --port 8765
 
 - Python 3.12+
 - Type hints on public functions
-- `ruff check src tests`
+- Format and lint: `make lint` (runs `ruff check` and `ruff format --check` on `src/` and `tests/`)
+- Apply formatting: `make format`
+- Optional [pre-commit](https://pre-commit.com): `pip install pre-commit && pre-commit install` — hooks match CI (`ruff`, `ruff-format`)
 
 ## Adding a new tool
 
@@ -36,7 +38,7 @@ Add a `users[]` block in `config.yaml` with all required fields (see `config.exa
 2. Add a flag type constant in `src/tools/flags.py` or a shared `src/flag_constants.py`.
 3. Implement evaluation in `src/sync.py` following existing patterns.
 4. Register the rule in the flag evaluation loop after sync.
-5. Add boundary unit tests in `tests/unit/test_flags.py`.
+5. Add boundary unit tests (e.g. under `tests/unit/` or `tests/unit/tools/`).
 6. Document in `context.md` and `config.example.yaml`.
 
 ## Tests

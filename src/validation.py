@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import date, datetime, timezone
-
+from datetime import UTC, date, datetime
 
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -26,7 +25,7 @@ def validate_date_range(
         raise ValueError("end before start")
     if (d1 - d0).days > max_days:
         raise ValueError(f"range exceeds {max_days} days")
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(UTC).date()
     if d0 > today or d1 > today:
         raise ValueError("future date not allowed")
     return d0, d1

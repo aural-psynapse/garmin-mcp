@@ -26,16 +26,21 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("GARMIN_MCP_CONFIG", str(cfgp))
     sys.path.insert(0, str(SRC))
     for mod in list(sys.modules.keys()):
-        if mod == "main" or mod.startswith("main.") or mod in (
-            "config",
-            "app_state",
-            "middleware",
-            "runtime",
-            "metrics",
-            "database",
-            "auth",
-            "sync",
-            "backup_service",
+        if (
+            mod == "main"
+            or mod.startswith("main.")
+            or mod
+            in (
+                "config",
+                "app_state",
+                "middleware",
+                "runtime",
+                "metrics",
+                "database",
+                "auth",
+                "sync",
+                "backup_service",
+            )
         ):
             sys.modules.pop(mod, None)
     import main as main_mod

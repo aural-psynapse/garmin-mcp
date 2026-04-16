@@ -6,6 +6,7 @@ from typing import Any
 
 import database as db
 from metrics import TOOL_CALLS
+
 from ._common import current_user, tool_enabled
 
 

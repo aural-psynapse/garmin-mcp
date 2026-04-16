@@ -90,7 +90,8 @@ Registered as a named prompt. Use when the user asks to analyze the latest worko
 | `make down` | `docker compose down` |
 | `make logs` | Follow logs |
 | `make test` | Pytest suite |
-| `make lint` | Ruff |
+| `make lint` | Ruff check + format check |
+| `make format` | Apply Ruff formatter |
 | `make sync` | `scripts/sync_all.py` — POST `/sync/{user}` for each user (**server must be running**) |
 | `make backup` | POST `/backup/all` (set `GARMIN_API_KEY` to any user’s key) |
 | `make shell` | Shell in `garmin-mcp` container |
