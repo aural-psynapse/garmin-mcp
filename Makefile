@@ -12,10 +12,10 @@ logs:
 	docker compose logs -f
 
 test:
-	cd $(CURDIR) && .venv/bin/pytest tests/ -v --cov=src --cov-report=term-missing
+	@if [ -f .venv/bin/python ]; then .venv/bin/python -m pytest tests/ -v --cov=src --cov-report=term-missing; else python3 -m pytest tests/ -v --cov=src; fi
 
 lint:
-	.venv/bin/ruff check src tests
+	@if [ -f .venv/bin/ruff ]; then .venv/bin/ruff check src tests; else ruff check src tests; fi
 
 sync:
 	.venv/bin/python scripts/sync_all.py
@@ -27,5 +27,5 @@ shell:
 	docker compose exec garmin-mcp bash
 
 validate:
-	docker compose config
-	.venv/bin/python -c "from pathlib import Path; import sys; sys.path.insert(0,'src'); from config import load_config; load_config('config.yaml'); print('config ok')"
+	TUNNEL_TOKEN=dummy docker compose config
+	@if [ -f .venv/bin/python ]; then .venv/bin/python -c "import sys; sys.path.insert(0,'src'); from config import load_config; load_config('config.yaml'); print('config ok')"; else python3 -c "import sys; sys.path.insert(0,'src'); from config import load_config; load_config('config.yaml'); print('config ok')"; fi
