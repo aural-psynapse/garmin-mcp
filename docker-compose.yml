@@ -10,7 +10,7 @@ services:
     environment:
       GARMIN_MCP_CONFIG: /app/config.yaml
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/health')"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
