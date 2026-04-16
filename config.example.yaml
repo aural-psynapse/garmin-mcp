@@ -3,7 +3,7 @@
 
 port: 8765
 log_level: info
-cloudflare_tunnel_token: "" # Injected via docker-compose from env; optional for local dev
+cloudflare_tunnel_token: token-from-cloudflare-dashboard # Injected via docker-compose from env; optional for local dev
 
 last_n_days: 30
 max_date_range_days: 90

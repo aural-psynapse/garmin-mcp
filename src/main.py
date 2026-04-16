@@ -21,7 +21,6 @@ _ROOT = Path(__file__).resolve().parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-import database as db
 from app_state import AppState
 from auth import GarminAuthManager
 from backup_service import backup_all_users
@@ -140,30 +139,10 @@ async def _periodic_sync() -> None:
                 logger.error("periodic sync %s: %s", u.name, e)
 
 
-async def _startup_sync() -> None:
-    for u in _cfg.users:
-        auth = _state.auth_by_user.get(u.name)
-        if not auth:
-            logger.error("✗ user=%s: no auth manager", u.name)
-            continue
-        try:
-            Path(u.db_path).parent.mkdir(parents=True, exist_ok=True)
-            c = db.connect(u.db_path)
-            db.init_schema(c)
-            c.close()
-        except Exception as e:
-            logger.error("✗ user=%s: db %s", u.name, e)
-            continue
-        try:
-            await asyncio.to_thread(auth.get_client)
-            logger.info("✓ user=%s: ready", u.name)
-        except Exception as e:
-            logger.error("✗ user=%s: garmin %s", u.name, e)
-
-
 @asynccontextmanager
 async def lifespan(_: Starlette):
-    await _startup_sync()
+    # One Garmin session + DB init per user: run_sync already connects, init_schema, and get_client().
+    # Avoid a separate startup get_client() — that doubled SSO traffic on every boot.
     for u in _cfg.users:
         if u.name not in _state.auth_by_user:
             continue
