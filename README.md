@@ -1,4 +1,6 @@
-# Garmin MCP Server
+# Garmin MCP Server 
+
+[![CI](https://github.com/aural-psynapse/garmin-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/aural-psynapse/garmin-mcp/actions/workflows/ci.yml)
 
 Self-hosted **Model Context Protocol** server for Garmin Connect: multi-user, SQLite-backed history, HTTP/SSE for Claude custom connectors, optional Cloudflare Tunnel, and an agentic “sports companion” layer (bootstrap context, workout prompt, goals, flags).
 
